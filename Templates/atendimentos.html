@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
+        background-color: var(--vet-color);
+        color: white;
+        font-weight: bold;
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .pet-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .badge-emergency {
+        background-color: var(--emergency-color);
+    }
+    
+    .badge-consulta {
+        background-color: var(--secondary-color);
+    }
+    
+    .badge-retorno {
+        background-color: #f39c12;
+    }
+    
+    .badge-vacinacao {
+        background-color: #27ae60;
+    }
+    
+    .badge-cirurgia {
+        background-color: #8e44ad;
+    }
+    
+    .status-pendente {
+        background-color: #f39c12;
+    }
+    
+    .status-concluido {
+        background-color: #27ae60;
+    }
+    
+    .status-cancelado {
+        background-color: #e74c3c;
+    }
+    
+    .status-em-andamento {
+        background-color: #3498db;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Atendimentos</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="?acao=add{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Atendimento
+            </a>
+        </div>
+    </div>
+    
+    <!-- Lista de Atendimentos -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de Atendimentos</h5>
+            <small class="text-muted">{{ atendimentos.count }} atendimento(s) encontrado(s)</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Pet</th>
+                            <th>Tutor</th>
+                            <th>Tipo</th>
+                            <th>Veterinário</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for atendimento in atendimentos %}
+                        <tr>
+                            <td>{{ atendimento.1|date:"d/m/Y" }} {{ atendimento.1|time:"H:i" }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="pet-avatar me-2">
+                                        <i class="fas {% if atendimento.pet.tipo == 'GATO' %}fa-cat{% else %}fa-dog{% endif %}"></i>
+                                    </div>
+                                    {{ atendimento.2 }}
+                                </div>
+                            </td>
+                            <td>{{ atendimento.3 }}</td>
+                            <td>
+                                <span class="badge {% if atendimento.tipo == 'EMERGENCIA' %}badge-emergency{% elif atendimento.tipo == 'CONSULTA' %}badge-consulta{% elif atendimento.tipo == 'RETORNO' %}badge-retorno{% elif atendimento.tipo == 'VACINACAO' %}badge-vacinacao{% else %}badge-cirurgia{% endif %}">
+                                    {{ atendimento.4 }}
+                                </span>
+                            </td>
+                            <td>{{ atendimento.5 }}</td>
+                            <td>
+                                <span class="badge {% if atendimento.6 == 'CONCLUIDO' %}status-concluido{% elif atendimento.6 == 'CANCELADO' %}status-cancelado{% elif atendimento.6 == 'ANDAMENTO' %}status-em-andamento{% else %}status-pendente{% endif %}">
+                                    {{ atendimento.6 }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="?acao=editar&id={{ atendimento.0 }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="?acao=del&id={{ atendimento.0 }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" 
+                                   class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Tem certeza que deseja excluir este atendimento?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Nenhum atendimento encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginação -->
+            {% if atendimentos.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if atendimentos.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ atendimentos.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Anterior</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in atendimentos.paginator.page_range %}
+                    {% if atendimentos.number == i %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ i }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if atendimentos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ atendimentos.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Próxima</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Próxima</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal do Atendimento -->
+<div class="modal fade" id="atendimentoModal" tabindex="-1" aria-labelledby="atendimentoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="atendimentoModalTitle">
+                    {% if request.GET.acao == 'editar' and atendimento_edicao %}Editar Atendimento{% else %}Novo Atendimento{% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <form method="post" action="{% url 'form_atendimento' %}">
+                    {% csrf_token %}
+                    <!-- Campo oculto para ID do atendimento em edição -->
+                    {% if request.GET.acao == 'editar' and atendimento_edicao %}
+                    <input type="hidden" name="id_atendimento" value="{{ atendimento_edicao.0 }}">
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label for="tipo" class="form-label">Tipo *</label>
+                            <select class="form-select" name="tipo" id="tipo" required>
+                                <option value="">Selecione</option>
+                                <option value="CONSULTA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'CONSULTA' %}selected{% endif %}>Consulta</option>
+                                <option value="EMERGENCIA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'EMERGENCIA' %}selected{% endif %}>Emergência</option>
+                                <option value="RETORNO" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'RETORNO' %}selected{% endif %}>Retorno</option>
+                                <option value="VACINACAO" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'VACINACAO' %}selected{% endif %}>Vacinação</option>
+                                <option value="CIRURGIA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'CIRURGIA' %}selected{% endif %}>Cirurgia</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Status *</label>
+                            <select class="form-select" name="status" id="status" required>
+                                <option value="PENDENTE" {% if request.GET.acao == 'editar' and atendimento_edicao.6 == 'PENDENTE' %}selected{% endif %}>Pendente</option>
+                                <option value="ANDAMENTO" {% if request.GET.acao == 'editar' and atendimento_edicao.6 == 'ANDAMENTO' %}selected{% endif %}>Em andamento</option>
+                                <option value="CONCLUIDO" {% if request.GET.acao == 'editar' and atendimento_edicao.6 == 'CONCLUIDO' %}selected{% endif %}>Concluído</option>
+                                <option value="CANCELADO" {% if request.GET.acao == 'editar' and atendimento_edicao.6 == 'CANCELADO' %}selected{% endif %}>Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data" class="form-label">Data inicio *</label>
+                            <input type="datetime-local" class="form-control" name="data_inicio" id="data_inicio" 
+                                   value="{% if request.GET.acao == 'editar' and atendimento_edicao %}{{ atendimento_edicao.1 }}{% else %}{{ hoje }}{% endif %}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="pet" class="form-label">Pet *</label>
+                            <select class="form-select" name="pet" id="pet" required>
+                                <option value="">Selecione o pet</option>
+                                {% for pet in pets %}
+                                <option value="{{ pet.0 }}" {% if request.GET.acao == 'editar' and atendimento_edicao.7 == pet.0 %}selected{% endif %}>
+                                    {{ pet.1}} (Tutor: {{ pet.9 }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="veterinario" class="form-label">Veterinário *</label>
+                            <select class="form-select" name="veterinario" id="veterinario" required>
+                                <option value="">Selecione o veterinário</option>
+                                {% for vet in veterinarios %}
+                                <option value="{{ vet.0 }}" {% if request.GET.acao == 'editar' and atendimento_edicao.8 == vet.0 %}selected{% endif %}>
+                                    {{ vet.1 }} - {{ vet.5 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="observacoes" class="form-label">Observações</label>
+                            <textarea class="form-control" name="observacoes" id="observacoes" rows="2">{% if request.GET.acao == 'editar' and atendimento_edicao %}{{ atendimento_edicao.9 }}{% endif %}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer sticky-bottom bg-white pt-3 pb-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            {% if request.GET.acao == 'editar' and atendimento_edicao %}Atualizar{% else %}Salvar{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Verifica se há uma ação na URL e abre o modal correspondente
+        const urlParams = new URLSearchParams(window.location.search);
+        const acao = urlParams.get('acao');
+        
+        if (acao) {
+            const atendimentoModal = new bootstrap.Modal(document.getElementById('atendimentoModal'));
+            atendimentoModal.show();
+        }
+
+        // Fechar o modal limpa a ação da URL
+        $('#atendimentoModal').on('hidden.bs.modal', function () {
+            const url = new URL(window.location);
+            url.searchParams.delete('acao');
+            url.searchParams.delete('id');
+            window.history.pushState({}, '', url);
+        });
+    });
+</script>
+{% endblock %}

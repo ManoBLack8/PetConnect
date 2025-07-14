@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetCare Pro - Financeiro</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --vet-color: #16a085;
+            --receita-color: #27ae60;
+            --despesa-color: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-menu {
+            padding: 0;
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu li i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .header {
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background-color: var(--vet-color);
+            color: white;
+            font-weight: bold;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .badge-receita {
+            background-color: var(--receita-color);
+        }
+        
+        .badge-despesa {
+            background-color: var(--despesa-color);
+        }
+        
+        .status-pago {
+            background-color: #27ae60;
+        }
+        
+        .status-pendente {
+            background-color: #f39c12;
+        }
+        
+        .status-cancelado {
+            background-color: #e74c3c;
+        }
+        
+        .status-atrasado {
+            background-color: #8e44ad;
+        }
+        
+        .resumo-card {
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+        
+        .resumo-receita {
+            border-left-color: var(--receita-color);
+        }
+        
+        .resumo-despesa {
+            border-left-color: var(--despesa-color);
+        }
+        
+        .resumo-saldo {
+            border-left-color: var(--secondary-color);
+        }
+        
+        .resumo-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>VetCare Pro</h4>
+            <small>Sistema Veterinário</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="index.html">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="tutores.html">
+                    <i class="fas fa-users"></i> Tutores
+                </a>
+            </li>
+            <li>
+                <a href="pets.html">
+                    <i class="fas fa-paw"></i> Pets
+                </a>
+            </li>
+            <li>
+                <a href="atendimentos.html">
+                    <i class="fas fa-calendar-check"></i> Atendimentos
+                </a>
+            </li>
+            <li>
+                <a href="servicos.html">
+                    <i class="fas fa-procedures"></i> Serviços
+                </a>
+            </li>
+            <li>
+                <a href="veterinarios.html">
+                    <i class="fas fa-user-md"></i> Veterinários
+                </a>
+            </li>
+            <li>
+                <a href="#" class="active">
+                    <i class="fas fa-dollar-sign"></i> Financeiro
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="container-fluid">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary d-md-none" id="sidebarToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h4>Gerenciamento Financeiro</h4>
+                    </div>
+                    <div class="user-info d-flex align-items-center">
+                        <div class="user-avatar me-2">DR</div>
+                        <div>
+                            <div class="fw-bold">Dr. Rodrigo Silva</div>
+                            <div class="small text-muted">Veterinário</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financeiro Content -->
+        <div class="container-fluid">
+            <!-- Resumo Financeiro -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card resumo-card resumo-receita h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-2">Receitas</h6>
+                                    <h3 class="mb-0">R$ 12.450,00</h3>
+                                    <small class="text-success"><i class="fas fa-caret-up me-1"></i> 15% em relação ao mês anterior</small>
+                                </div>
+                                <div class="bg-success bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-dollar-sign text-success" style="font-size: 24px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card resumo-card resumo-despesa h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-2">Despesas</h6>
+                                    <h3 class="mb-0">R$ 8.720,00</h3>
+                                    <small class="text-danger"><i class="fas fa-caret-down me-1"></i> 5% em relação ao mês anterior</small>
+                                </div>
+                                <div class="bg-danger bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-money-bill-wave text-danger" style="font-size: 24px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card resumo-card resumo-saldo h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted mb-2">Saldo do Mês</h6>
+                                    <h3 class="mb-0">R$ 3.730,00</h3>
+                                    <small class="text-primary"><i class="fas fa-caret-up me-1"></i> 42% em relação ao mês anterior</small>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-piggy-bank text-primary" style="font-size: 24px;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos e Filtros -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Fluxo Financeiro Mensal</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-secondary active">Mês</button>
+                                <button class="btn btn-sm btn-outline-secondary">Trimestre</button>
+                                <button class="btn btn-sm btn-outline-secondary">Ano</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <!-- Espaço para gráfico (seria implementado com Chart.js em produção) -->
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <div class="text-center text-muted">
+                                        <i class="fas fa-chart-line fa-3x mb-2"></i>
+                                        <p>Gráfico de fluxo financeiro mensal</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">Distribuição por Categoria</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <!-- Espaço para gráfico de pizza (seria implementado com Chart.js em produção) -->
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <div class="text-center text-muted">
+                                        <i class="fas fa-chart-pie fa-3x mb-2"></i>
+                                        <p>Gráfico de distribuição por categoria</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filtros e Busca -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="input-group mb-3">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="buscaFinanceiro" placeholder="Buscar...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="filtroTipo">
+                                <option value="">Todos tipos</option>
+                                <option value="receita">Receita</option>
+                                <option value="despesa">Despesa</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="filtroCategoria">
+                                <option value="">Todas categorias</option>
+                                <option value="consulta">Consultas</option>
+                                <option value="cirurgia">Cirurgias</option>
+                                <option value="exame">Exames</option>
+                                <option value="vacinacao">Vacinas</option>
+                                <option value="produto">Produtos</option>
+                                <option value="salario">Salários</option>
+                                <option value="aluguel">Aluguel</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-select" id="filtroStatus">
+                                <option value="">Todos status</option>
+                                <option value="pago">Pago</option>
+                                <option value="pendente">Pendente</option>
+                                <option value="atrasado">Atrasado</option>
+                                <option value="cancelado">Cancelado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="month" class="form-control" id="filtroData" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abas de Lançamentos -->
+            <ul class="nav nav-tabs mb-4" id="financeiroTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="lancamentos-tab" data-bs-toggle="tab" data-bs-target="#lancamentos" type="button" role="tab">Lançamentos</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="contas-tab" data-bs-toggle="tab" data-bs-target="#contas" type="button" role="tab">Contas a Pagar/Receber</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="relatorios-tab" data-bs-toggle="tab" data-bs-target="#relatorios" type="button" role="tab">Relatórios</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="financeiroTabsContent">
+                <!-- Tab Lançamentos -->
+                <div class="tab-pane fade show active" id="lancamentos" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Lançamentos Financeiros</h5>
+                            <div>
+                                <button class="btn btn-sm btn-outline-success me-2" id="novoLancamentoBtn">
+                                    <i class="fas fa-plus me-1"></i>Novo Lançamento
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-file-export me-1"></i>Exportar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tabelaLancamentos">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Descrição</th>
+                                            <th>Tipo</th>
+                                            <th>Categoria</th>
+                                            <th>Valor</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dados serão carregados via JavaScript -->
+                                        <tr>
+                                            <td colspan="7" class="text-center">Carregando lançamentos...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Paginação -->
+                            <nav aria-label="Page navigation" class="mt-4">
+                                <ul class="pagination justify-content-center" id="paginacaoLancamentos">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Próxima</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Contas -->
+                <div class="tab-pane fade" id="contas" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Contas a Pagar/Receber</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tabelaContas">
+                                    <thead>
+                                        <tr>
+                                            <th>Vencimento</th>
+                                            <th>Descrição</th>
+                                            <th>Tipo</th>
+                                            <th>Valor</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dados serão carregados via JavaScript -->
+                                        <tr>
+                                            <td colspan="6" class="text-center">Carregando contas...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Relatórios -->
+                <div class="tab-pane fade" id="relatorios" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Relatórios Financeiros</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-file-invoice-dollar fa-3x mb-3 text-primary"></i>
+                                            <h5>Relatório Mensal</h5>
+                                            <p class="text-muted">Resumo completo das finanças do mês</p>
+                                            <button class="btn btn-outline-primary">Gerar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-chart-bar fa-3x mb-3 text-success"></i>
+                                            <h5>Fluxo de Caixa</h5>
+                                            <p class="text-muted">Entradas e saídas por período</p>
+                                            <button class="btn btn-outline-success">Gerar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-receipt fa-3x mb-3 text-info"></i>
+                                            <h5>Faturamento por Serviço</h5>
+                                            <p class="text-muted">Receitas por categoria de serviço</p>
+                                            <button class="btn btn-outline-info">Gerar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Lançamento Financeiro -->
+    <div class="modal fade" id="lancamentoModal" tabindex="-1" aria-labelledby="lancamentoModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lancamentoModalTitle">Novo Lançamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="lancamentoForm">
+                        <input type="hidden" id="lancamentoId">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="tipoLancamento" class="form-label">Tipo *</label>
+                                <select class="form-select" id="tipoLancamento" required>
+                                    <option value="">Selecione</option>
+                                    <option value="receita">Receita</option>
+                                    <option value="despesa">Despesa</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="categoriaLancamento" class="form-label">Categoria *</label>
+                                <select class="form-select" id="categoriaLancamento" required>
+                                    <option value="">Selecione</option>
+                                    <optgroup label="Receitas">
+                                        <option value="consulta">Consulta</option>
+                                        <option value="cirurgia">Cirurgia</option>
+                                        <option value="exame">Exame</option>
+                                        <option value="vacinacao">Vacinação</option>
+                                        <option value="produto">Venda de Produtos</option>
+                                    </optgroup>
+                                    <optgroup label="Despesas">
+                                        <option value="salario">Salários</option>
+                                        <option value="aluguel">Aluguel</option>
+                                        <option value="equipamento">Equipamentos</option>
+                                        <option value="medicamento">Medicamentos</option>
+                                        <option value="outros">Outras Despesas</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="dataLancamento" class="form-label">Data *</label>
+                                <input type="date" class="form-control" id="dataLancamento" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="valorLancamento" class="form-label">Valor (R$) *</label>
+                                <input type="number" step="0.01" class="form-control" id="valorLancamento" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descricaoLancamento" class="form-label">Descrição *</label>
+                            <input type="text" class="form-control" id="descricaoLancamento" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="statusLancamento" class="form-label">Status *</label>
+                                <select class="form-select" id="statusLancamento" required>
+                                    <option value="pago">Pago</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="atrasado">Atrasado</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="formaPagamento" class="form-label">Forma de Pagamento</label>
+                                <select class="form-select" id="formaPagamento">
+                                    <option value="">Selecione</option>
+                                    <option value="dinheiro">Dinheiro</option>
+                                    <option value="cartao_credito">Cartão de Crédito</option>
+                                    <option value="cartao_debito">Cartão de Débito</option>
+                                    <option value="pix">PIX</option>
+                                    <option value="transferencia">Transferência Bancária</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="observacoesLancamento" class="form-label">Observações</label>
+                            <textarea class="form-control" id="observacoesLancamento" rows="2"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="salvarLancamentoBtn">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery, Bootstrap JS e Popper -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Toggle sidebar em telas pequenas
+            $('#sidebarToggle').click(function() {
+                $('.sidebar').toggleClass('d-none');
+                $('.main-content').toggleClass('full-width');
+            });
+
+            // Ativar item do menu
+            $('.sidebar-menu li a').click(function() {
+                $('.sidebar-menu li a').removeClass('active');
+                $(this).addClass('active');
+                
+                // Fechar sidebar em mobile
+                if ($(window).width() < 768) {
+                    $('.sidebar').addClass('d-none');
+                }
+            });
+
+            // Dados mockados (em uma aplicação real, isso viria de uma API)
+            let lancamentos = [
+                {
+                    id: 1,
+                    tipo: "receita",
+                    categoria: "consulta",
+                    data: "2023-06-15",
+                    descricao: "Consulta - Rex (Carlos Silva)",
+                    valor: 120.00,
+                    status: "pago",
+                    forma_pagamento: "cartao_credito",
+                    observacoes: "Consulta de rotina"
+                },
+                {
+                    id: 2,
+                    tipo: "receita",
+                    categoria: "vacinacao",
+                    data: "2023-06-15",
+                    descricao: "Vacina V10 - Rex (Carlos Silva)",
+                    valor: 80.00,
+                    status: "pago",
+                    forma_pagamento: "cartao_credito",
+                    observacoes: "Lote 12345"
+                },
+                {
+                    id: 3,
+                    tipo: "despesa",
+                    categoria: "salario",
+                    data: "2023-06-05",
+                    descricao: "Salário - Dr. Rodrigo Silva",
+                    valor: 4500.00,
+                    status: "pago",
+                    forma_pagamento: "transferencia",
+                    observacoes: "Salário mensal"
+                },
+                {
+                    id: 4,
+                    tipo: "despesa",
+                    categoria: "medicamento",
+                    data: "2023-06-10",
+                    descricao: "Compras de medicamentos",
+                    valor: 1200.50,
+                    status: "pago",
+                    forma_pagamento: "cartao_debito",
+                    observacoes: "Pedido #1234 - Farmacia Veterinária"
+                },
+                {
+                    id: 5,
+                    tipo: "receita",
+                    categoria: "cirurgia",
+                    data: "2023-06-18",
+                    descricao: "Castração - Mingau (Ana Oliveira)",
+                    valor: 500.00,
+                    status: "pendente",
+                    forma_pagamento: "",
+                    observacoes: "Pendente de pagamento"
+                }
+            ];
+
+            let contas = [
+                {
+                    id: 1,
+                    tipo: "receita",
+                    descricao: "Consulta - Bolinha (Ana Oliveira)",
+                    valor: 120.00,
+                    vencimento: "2023-06-25",
+                    status: "pendente"
+                },
+                {
+                    id: 2,
+                    tipo: "despesa",
+                    descricao: "Aluguel do consultório",
+                    valor: 2500.00,
+                    vencimento: "2023-06-30",
+                    status: "pendente"
+                },
+                {
+                    id: 3,
+                    tipo: "despesa",
+                    descricao: "Conta de água",
+                    valor: 150.00,
+                    vencimento: "2023-06-20",
+                    status: "atrasado"
+                }
+            ];
+
+            // Função para carregar a lista de lançamentos
+            function carregarLancamentos(filtro = '', tipo = '', categoria = '', status = '') {
+                let lancamentosFiltrados = lancamentos;
+                
+                // Aplicar filtros
+                if (filtro) {
+                    lancamentosFiltrados = lancamentosFiltrados.filter(lanc => 
+                        lanc.descricao.toLowerCase().includes(filtro.toLowerCase()) ||
+                        lanc.observacoes.toLowerCase().includes(filtro.toLowerCase())
+                    );
+                }
+                
+                if (tipo) {
+                    lancamentosFiltrados = lancamentosFiltrados.filter(lanc => lanc.tipo === tipo);
+                }
+                
+                if (categoria) {
+                    lancamentosFiltrados = lancamentosFiltrados.filter(lanc => lanc.categoria === categoria);
+                }
+                
+                if (status) {
+                    lancamentosFiltrados = lancamentosFiltrados.filter(lanc => lanc.status === status);
+                }
+                
+                // Ordenar por data mais recente primeiro
+                lancamentosFiltrados.sort((a, b) => new Date(b.data) - new Date(a.data));
+                
+                // Limpar tabela
+                $('#tabelaLancamentos tbody').empty();
+                
+                // Preencher tabela
+                if (lancamentosFiltrados.length === 0) {
+                    $('#tabelaLancamentos tbody').append(`
+                        <tr>
+                            <td colspan="7" class="text-center">Nenhum lançamento encontrado</td>
+                        </tr>
+                    `);
+                } else {
+                    lancamentosFiltrados.forEach(lanc => {
+                        // Classe do badge baseado no tipo de lançamento
+                        let badgeClass = lanc.tipo === "receita" ? "badge-receita" : "badge-despesa";
+                        let tipoText = lanc.tipo === "receita" ? "Receita" : "Despesa";
+                        
+                        // Classe do status
+                        let statusClass = "status-" + lanc.status;
+                        let statusText = formatarStatus(lanc.status);
+                        
+                        $('#tabelaLancamentos tbody').append(`
+                            <tr>
+                                <td>${formatarData(lanc.data)}</td>
+                                <td>${lanc.descricao}</td>
+                                <td>
+                                    <span class="badge ${badgeClass}">
+                                        ${tipoText}
+                                    </span>
+                                </td>
+                                <td>${formatarCategoria(lanc.categoria)}</td>
+                                <td>R$ ${lanc.valor.toFixed(2)}</td>
+                                <td>
+                                    <span class="badge ${statusClass}">
+                                        ${statusText}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary editar-lancamento" data-id="${lanc.id}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger excluir-lancamento" data-id="${lanc.id}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                }
+            }
+
+            // Função para carregar a lista de contas
+            function carregarContas() {
+                // Limpar tabela
+                $('#tabelaContas tbody').empty();
+                
+                // Preencher tabela
+                if (contas.length === 0) {
+                    $('#tabelaContas tbody').append(`
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhuma conta encontrada</td>
+                        </tr>
+                    `);
+                } else {
+                    contas.forEach(conta => {
+                        // Classe do badge baseado no tipo de conta
+                        let badgeClass = conta.tipo === "receita" ? "badge-receita" : "badge-despesa";
+                        let tipoText = conta.tipo === "receita" ? "Receber" : "Pagar";
+                        
+                        // Classe do status
+                        let statusClass = "status-" + conta.status;
+                        let statusText = formatarStatus(conta.status);
+                        
+                        // Verificar se está atrasado
+                        const hoje = new Date();
+                        const vencimento = new Date(conta.vencimento);
+                        const atrasado = vencimento < hoje && conta.status === "pendente";
+                        
+                        if (atrasado) {
+                            statusClass = "status-atrasado";
+                            statusText = "Atrasado";
+                        }
+                        
+                        $('#tabelaContas tbody').append(`
+                            <tr>
+                                <td>${formatarData(conta.vencimento)}</td>
+                                <td>${conta.descricao}</td>
+                                <td>
+                                    <span class="badge ${badgeClass}">
+                                        ${tipoText}
+                                    </span>
+                                </td>
+                                <td>R$ ${conta.valor.toFixed(2)}</td>
+                                <td>
+                                    <span class="badge ${statusClass}">
+                                        ${statusText}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-success me-1" title="Marcar como pago">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                }
+            }
+
+            // Função para formatar status para exibição
+            function formatarStatus(status) {
+                const statusMap = {
+                    'pago': 'Pago',
+                    'pendente': 'Pendente',
+                    'atrasado': 'Atrasado',
+                    'cancelado': 'Cancelado'
+                };
+                return statusMap[status] || status;
+            }
+
+            // Função para formatar categoria para exibição
+            function formatarCategoria(categoria) {
+                const categoriasMap = {
+                    'consulta': 'Consulta',
+                    'cirurgia': 'Cirurgia',
+                    'exame': 'Exame',
+                    'vacinacao': 'Vacinação',
+                    'produto': 'Produto',
+                    'salario': 'Salário',
+                    'aluguel': 'Aluguel',
+                    'equipamento': 'Equipamento',
+                    'medicamento': 'Medicamento',
+                    'outros': 'Outros'
+                };
+                return categoriasMap[categoria] || categoria;
+            }
+
+            // Função para formatar data para exibição
+            function formatarData(dataString) {
+                const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                return new Date(dataString).toLocaleDateString('pt-BR', options);
+            }
+
+            // Função para abrir modal de lançamento (novo ou edição)
+            function abrirLancamentoModal(lancamentoId = null) {
+                const modal = new bootstrap.Modal(document.getElementById('lancamentoModal'));
+                const isEdicao = lancamentoId !== null;
+                
+                if (isEdicao) {
+                    // Modo edição
+                    const lancamento = lancamentos.find(l => l.id === lancamentoId);
+                    $('#lancamentoModalTitle').text('Editar Lançamento');
+                    $('#lancamentoId').val(lancamento.id);
+                    $('#tipoLancamento').val(lancamento.tipo);
+                    $('#categoriaLancamento').val(lancamento.categoria);
+                    $('#dataLancamento').val(lancamento.data);
+                    $('#valorLancamento').val(lancamento.valor);
+                    $('#descricaoLancamento').val(lancamento.descricao);
+                    $('#statusLancamento').val(lancamento.status);
+                    $('#formaPagamento').val(lancamento.forma_pagamento);
+                    $('#observacoesLancamento').val(lancamento.observacoes);
+                } else {
+                    // Modo novo
+                    $('#lancamentoModalTitle').text('Novo Lançamento');
+                    $('#lancamentoForm')[0].reset();
+                    $('#lancamentoId').val('');
+                    $('#statusLancamento').val('pago');
+                    
+                    // Definir data atual como padrão
+                    const hoje = new Date().toISOString().split('T')[0];
+                    $('#dataLancamento').val(hoje);
+                }
+                
+                modal.show();
+            }
+
+            // Event Listeners para a aba de financeiro
+            $(document).on('click', '#novoLancamentoBtn', function() {
+                abrirLancamentoModal();
+            });
+
+            $(document).on('click', '.editar-lancamento', function() {
+                const lancamentoId = parseInt($(this).data('id'));
+                abrirLancamentoModal(lancamentoId);
+            });
+
+            $(document).on('click', '#salvarLancamentoBtn', function() {
+                const isEdicao = $('#lancamentoId').val() !== '';
+                const lancamentoData = {
+                    tipo: $('#tipoLancamento').val(),
+                    categoria: $('#categoriaLancamento').val(),
+                    data: $('#dataLancamento').val(),
+                    valor: parseFloat($('#valorLancamento').val()),
+                    descricao: $('#descricaoLancamento').val(),
+                    status: $('#statusLancamento').val(),
+                    forma_pagamento: $('#formaPagamento').val(),
+                    observacoes: $('#observacoesLancamento').val()
+                };
+                
+                // Validação simples
+                if (!lancamentoData.tipo || !lancamentoData.categoria || !lancamentoData.data || 
+                    isNaN(lancamentoData.valor) || !lancamentoData.descricao || !lancamentoData.status) {
+                    alert('Por favor, preencha todos os campos obrigatórios corretamente');
+                    return;
+                }
+                
+                if (isEdicao) {
+                    // Atualizar lançamento existente
+                    const lancamentoId = parseInt($('#lancamentoId').val());
+                    const lancamentoIndex = lancamentos.findIndex(l => l.id === lancamentoId);
+                    lancamentos[lancamentoIndex] = {...lancamentos[lancamentoIndex], ...lancamentoData};
+                } else {
+                    // Criar novo lançamento
+                    lancamentoData.id = lancamentos.length > 0 ? Math.max(...lancamentos.map(l => l.id)) + 1 : 1;
+                    lancamentos.push(lancamentoData);
+                }
+                
+                // Fechar modal e recarregar lista
+                $('#lancamentoModal').modal('hide');
+                carregarLancamentos();
+            });
+
+            $(document).on('click', '.excluir-lancamento', function() {
+                const lancamentoId = parseInt($(this).data('id'));
+                if (confirm('Tem certeza que deseja excluir este lançamento?')) {
+                    lancamentos = lancamentos.filter(l => l.id !== lancamentoId);
+                    carregarLancamentos();
+                }
+            });
+
+            // Filtros
+            $(document).on('click', '#aplicarFiltros', function() {
+                const filtro = $('#buscaFinanceiro').val();
+                const tipo = $('#filtroTipo').val();
+                const categoria = $('#filtroCategoria').val();
+                const status = $('#filtroStatus').val();
+                carregarLancamentos(filtro, tipo, categoria, status);
+            });
+
+            // Inicialização
+            carregarLancamentos();
+            carregarContas();
+            
+            // Definir mês atual no filtro
+            const hoje = new Date();
+            const mesAtual = hoje.toISOString().slice(0, 7);
+            $('#filtroData').val(mesAtual);
+        });
+    </script>
+</body>
+</html>

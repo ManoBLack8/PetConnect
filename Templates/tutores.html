@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
+        background-color: var(--vet-color);
+        color: white;
+        font-weight: bold;
+        border-radius: 10px 10px 0 0 !important;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Tutores</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="?acao=add{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Tutor
+            </a>
+        </div>
+    </div>
+
+    <!-- Lista de Tutores -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de Tutores</h5>
+            <small class="text-muted">{{ tutores.count }} tutor(es) encontrado(s)</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <!--<th>Pets</th>-->
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tutor in tutores %}
+                        <tr>
+                            <td>{{ tutor.nome }}</td>
+                            <td>{{ tutor.cpf }}</td>
+                            <td>{{ tutor.telefone }}</td>
+                            <td>{{ tutor.email }}</td>
+                            <!--<td>{{ tutor.pets }}</td>-->
+                            <td>
+                                <span class="badge {% if tutor.ativo %}bg-success{% else %}bg-secondary{% endif %}">
+                                    {% if tutor.ativo %}Ativo{% else %}Inativo{% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="?acao=editar&id={{ tutor.id_tutor }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="?acao=del&id={{ tutor.id_tutor }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" 
+                                   class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Tem certeza que deseja excluir o tutor {{ tutor.nome }} ?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Nenhum tutor encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginação -->
+            {% if tutores.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if tutores.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tutores.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Anterior</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in tutores.paginator.page_range %}
+                    {% if tutores.number == i %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ i }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if tutores.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ tutores.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Próxima</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Próxima</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal do Tutor -->
+<div class="modal fade" id="tutorModal" tabindex="-1" aria-labelledby="tutorModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tutorModalTitle">
+                    {% if request.GET.acao == 'editar' and tutor_edicao %}Editar Tutor{% else %}Novo Tutor{% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="post" action="{% url 'tutores_form' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <!-- Campo oculto para ID do tutor em edição -->
+                    {% if request.GET.acao == 'editar' and tutor_edicao %}
+                    <input type="hidden" name="id_tutor" value="{{ tutor_edicao.0 }}">
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nome" class="form-label">Nome *</label>
+                            <input type="text" class="form-control" name="nome" id="nome" 
+                                   value="{% if request.GET.acao == 'editar' and tutor_edicao %}{{ tutor_edicao.1 }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="cpf" class="form-label">CPF *</label>
+                            <input type="text" class="form-control" name="cpf" id="cpf" 
+                                   value="{% if request.GET.acao == 'editar' and tutor_edicao %}{{ tutor_edicao.2 }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="data_nascimento" class="form-label">Data de Nascimento</label>
+                            <input type="date" class="form-control" name="data_nascimento" id="data_nascimento"
+                                   value="{% if request.GET.acao == 'editar' and tutor_edicao %}{{ tutor_edicao.5|date:'Y-m-d' }}{% endif %}">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">E-mail *</label>
+                            <input type="email" class="form-control" name="email" id="email" 
+                                   value="{% if request.GET.acao == 'editar' and tutor_edicao %}{{ tutor_edicao.3 }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="telefone" class="form-label">Telefone *</label>
+                            <input type="text" class="form-control" name="telefone" id="telefone" 
+                                   value="{% if request.GET.acao == 'editar' and tutor_edicao %}{{ tutor_edicao.4 }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="tipo_conta" class="form-label">Tipo de Conta</label>
+                            <select class="form-select" name="tipo_conta" id="tipo_conta">
+                                <option value="pf" {% if request.GET.acao == 'editar' and tutor_edicao and tutor_edicao.7 == 'pf' %}selected{% endif %}>Pessoa Física</option>
+                                <option value="pj" {% if request.GET.acao == 'editar' and tutor_edicao and tutor_edicao.7 == 'pj' %}selected{% endif %}>Pessoa Jurídica</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" name="endereco" id="endereco"
+                               value="{% if request.GET.acao == 'editar' and tutor_edicao %}{{ tutor_edicao.6 }}{% endif %}">
+                    </div>
+
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" name="ativo" id="ativo" 
+                               {% if request.GET.acao == 'editar' and tutor_edicao and tutor_edicao.8 %}checked{% endif %}>
+                        <label class="form-check-label" for="ativo">Ativo</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        {% if request.GET.acao == 'editar' and tutor_edicao %}Atualizar{% else %}Salvar{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Máscaras para os campos
+        $('#cpf').inputmask('999.999.999-99');
+        $('#telefone').inputmask('(99) 9999-9999');
+        
+        // Verifica se há uma ação na URL e abre o modal correspondente
+        const urlParams = new URLSearchParams(window.location.search);
+        const acao = urlParams.get('acao');
+        
+        if (acao) {
+            const tutorModal = new bootstrap.Modal(document.getElementById('tutorModal'));
+            tutorModal.show();
+        }
+
+        // Validação do formulário
+        // $('form').on('submit', function(e) {
+        //     const cpf = $('#cpf').val().replace(/\D/g, '');
+        //     if (cpf.length !== 11) {
+        //         alert('CPF inválido');
+        //         e.preventDefault();
+        //         return false;
+        //     }
+            
+        //     const telefone = $('#telefone').val().replace(/\D/g, '');
+        //     if (telefone.length < 10 || telefone.length > 11) {
+        //         alert('Telefone inválido');
+        //         e.preventDefault();
+        //         return false;
+        //     }
+            
+        //     return true;
+        // });
+        
+        // Fechar o modal limpa a ação da URL
+        $('#tutorModal').on('hidden.bs.modal', function () {
+            const url = new URL(window.location);
+            url.searchParams.delete('acao');
+            url.searchParams.delete('id');
+            window.history.pushState({}, '', url);
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .vet-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--vet-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+    }
+    
+    .badge-especialidade {
+        background-color: #8e44ad;
+        color: white;
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+    
+    .status-ativo {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-inativo {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-ferias {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        transition: all 0.3s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .card-header {
+        background-color: var(--vet-color);
+        color: white;
+        font-weight: bold;
+        border-radius: 10px 10px 0 0 !important;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Veterinários</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="?acao=add" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Novo Veterinário
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" id="filtroForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" name="q" placeholder="Buscar veterinário..." 
+                                   value="{{ request.GET.q }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="especialidade">
+                            <option value="">Todas especialidades</option>
+                            <option value="CLINICO" {% if request.GET.especialidade == 'CLINICO' %}selected{% endif %}>Clínico Geral</option>
+                            <option value="CIRURGIAO" {% if request.GET.especialidade == 'CIRURGIAO' %}selected{% endif %}>Cirurgião</option>
+                            <option value="DERMATOLOGISTA" {% if request.GET.especialidade == 'DERMATOLOGISTA' %}selected{% endif %}>Dermatologista</option>
+                            <option value="OFTALMOLOGISTA" {% if request.GET.especialidade == 'OFTALMOLOGISTA' %}selected{% endif %}>Oftalmologista</option>
+                            <option value="CARDIOLOGISTA" {% if request.GET.especialidade == 'CARDIOLOGISTA' %}selected{% endif %}>Cardiologista</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="status">
+                            <option value="">Todos status</option>
+                            <option value="ATIVO" {% if request.GET.status == 'ATIVO' %}selected{% endif %}>Ativo</option>
+                            <option value="INATIVO" {% if request.GET.status == 'INATIVO' %}selected{% endif %}>Inativo</option>
+                            <option value="FERIAS" {% if request.GET.status == 'FERIAS' %}selected{% endif %}>Férias</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-2"></i>Filtrar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Veterinários -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de Veterinários</h5>
+            <small class="text-muted">{{ veterinarios.count }} veterinário(s) encontrado(s)</small>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Nome</th>
+                            <th>CRMV</th>
+                            <th>Especialidade</th>
+                            <th>Telefone</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vet in veterinarios %}
+                        <tr>
+                            <td>
+                                <div class="vet-avatar">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                            </td>
+                            <td>{{ vet.1 }}</td>
+                            <td>{{ vet.6 }}</td>
+                            <td>
+                                <span class="badge badge-especialidade">
+                                    {{ vet.5 }}
+                                </span>
+                            </td>
+                            <td>{{ vet.2 }}</td>
+                            <td>{{ vet.3 }}</td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if vet.7 == 'ATIVO' %}status-ativo
+                                    {% elif vet.7 == 'INATIVO' %}status-inativo
+                                    {% else %}status-ferias{% endif %}">
+                                    {{ vet.7 }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="?acao=editar&id={{ vet.0 }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="?acao=excluir&id={{ vet.0 }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Tem certeza que deseja excluir o veterinário {{ vet.nome }}?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center">Nenhum veterinário encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginação -->
+            {% if veterinarios.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if veterinarios.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ veterinarios.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}">Anterior</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in veterinarios.paginator.page_range %}
+                    {% if veterinarios.number == i %}
+                    <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}">{{ i }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if veterinarios.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ veterinarios.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.especialidade %}&especialidade={{ request.GET.especialidade }}{% endif %}">Próxima</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Próxima</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal do Veterinário -->
+<div class="modal fade" id="veterinarioModal" tabindex="-1" aria-labelledby="veterinarioModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="veterinarioModalTitle">
+                    {% if request.GET.acao == 'editar' and veterinario_edicao %}Editar Veterinário{% else %}Novo Veterinário{% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <form method="post" action="{% url 'veterinarios_form' %}">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <!-- Campo oculto para ID do veterinário em edição -->
+                    {% if request.GET.acao == 'editar' and veterinario_edicao %}
+                    <input type="hidden" name="id_veterinario" value="{{ veterinario_edicao.0}}">
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="nome" class="form-label">Nome Completo *</label>
+                            <input type="text" class="form-control" name="nome" id="nome" 
+                                   value="{% if request.GET.acao == 'editar' and veterinario_edicao %}{{ veterinario_edicao.1 }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="crmv" class="form-label">CRMV *</label>
+                            <input type="text" class="form-control" name="crmv" id="crmv" 
+                                   value="{% if request.GET.acao == 'editar' and veterinario_edicao %}{{ veterinario_edicao.2 }}{% endif %}" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="especialidade" class="form-label">Especialidade *</label>
+                            <select class="form-select" name="especialidade" id="especialidade" required>
+                                <option value="">Selecione...</option>
+                                <option value="CLINICO" {% if veterinario_edicao and veterinario_edicao.3 == 'CLINICO' %}selected{% endif %}>Clínico Geral</option>
+                                <option value="CIRURGIAO" {% if veterinario_edicao and veterinario_edicao.3 == 'CIRURGIAO' %}selected{% endif %}>Cirurgião</option>
+                                <option value="DERMATOLOGISTA" {% if veterinario_edicao and veterinario_edicao.3 == 'DERMATOLOGISTA' %}selected{% endif %}>Dermatologista</option>
+                                <option value="OFTALMOLOGISTA" {% if veterinario_edicao and veterinario_edicao.3 == 'OFTALMOLOGISTA' %}selected{% endif %}>Oftalmologista</option>
+                                <option value="CARDIOLOGISTA" {% if veterinario_edicao and veterinario_edicao.3 == 'CARDIOLOGISTA' %}selected{% endif %}>Cardiologista</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Status *</label>
+                            <select class="form-select" name="status" id="status" required>
+                                <option value="ATIVO" {% if veterinario_edicao and veterinario_edicao.4 == 'ATIVO' %}selected{% endif %}>Ativo</option>
+                                <option value="INATIVO" {% if veterinario_edicao and veterinario_edicao.4 == 'INATIVO' %}selected{% endif %}>Inativo</option>
+                                <option value="FERIAS" {% if veterinario_edicao and veterinario_edicao.4 == 'FERIAS' %}selected{% endif %}>Férias</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="telefone" class="form-label">Telefone *</label>
+                            <input type="tel" class="form-control" name="telefone" id="telefone" 
+                                   value="{% if request.GET.acao == 'editar' and veterinario_edicao %}{{ veterinario_edicao.5 }}{% endif %}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="email" id="email" 
+                                   value="{% if request.GET.acao == 'editar' and veterinario_edicao %}{{ veterinario_edicao.6 }}{% endif %}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="endereco" class="form-label">Endereço</label>
+                        <input type="text" class="form-control" name="endereco" id="endereco"
+                               value="{% if request.GET.acao == 'editar' and veterinario_edicao %}{{ veterinario_edicao.7 }}{% endif %}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        {% if request.GET.acao == 'editar' and veterinario_edicao %}Atualizar{% else %}Salvar{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // Máscaras para os campos
+        $('#telefone').inputmask('(99) 9999-9999');
+        
+        // Verifica se há uma ação na URL e abre o modal correspondente
+        const urlParams = new URLSearchParams(window.location.search);
+        const acao = urlParams.get('acao');
+        
+        if (acao == 'editar' || acao == 'add') {
+            const veterinarioModal = new bootstrap.Modal(document.getElementById('veterinarioModal'));
+            veterinarioModal.show();
+        }
+
+        // Fechar o modal limpa a ação da URL
+        $('#veterinarioModal').on('hidden.bs.modal', function () {
+            const url = new URL(window.location);
+            url.searchParams.delete('acao');
+            url.searchParams.delete('id');
+            window.history.pushState({}, '', url);
+        });
+    });
+</script>
+{% endblock %}
