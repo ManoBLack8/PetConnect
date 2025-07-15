@@ -100,8 +100,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="?acao=del&id={{ pet.0 }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}" 
-                                   class="btn btn-sm btn-outline-danger" 
-                                   onclick="return confirm('Tem certeza que deseja excluir o pet {{ pet.nome }}?');">
+                                   class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </td>
@@ -153,6 +152,28 @@
     </div>
 </div>
 
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir o Pet <strong id="tutorName">{{pet_edicao.1}}</strong>?</p>
+                <p class="text-danger">Esta ação não pode ser desfeita!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="post" action="{% url 'pets_del' %}">
+                    <input type="hidden" name="id" value="{% if request.GET.acao == 'del' and pet_edicao %}{{ pet_edicao.0 }}{% endif %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Modal do Pet -->
 <div class="modal fade" id="petModal" tabindex="-1" aria-labelledby="petModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -254,11 +275,14 @@
         const urlParams = new URLSearchParams(window.location.search);
         const acao = urlParams.get('acao');
         
-        if (acao) {
+        if (acao == 'editar' || acao == 'add') {
             const petModal = new bootstrap.Modal(document.getElementById('petModal'));
             petModal.show();
         }
-
+        if (acao == 'del'){
+            const tutorModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            tutorModal.show(); 
+        }
         // Fechar o modal limpa a ação da URL
         $('#petModal').on('hidden.bs.modal', function () {
             const url = new URL(window.location);

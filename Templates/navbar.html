@@ -140,12 +140,17 @@
 </head>
 <body>
     {% if messages %}
-            {% for message in messages %}
-                <div class="mensagem-flutuante alert alert-{{ message.tags }}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-    {% endif %}
+    {% for message in messages %}
+        <div class="mensagem-flutuante alert 
+            {% if message.tags == 'error' %}alert-danger
+            {% elif message.tags == 'success' %}alert-success
+            {% elif message.tags == 'warning' %}alert-warning
+            {% elif message.tags == 'info' %}alert-info
+            {% else %}alert-primary{% endif %}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">

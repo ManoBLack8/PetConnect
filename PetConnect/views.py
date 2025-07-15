@@ -23,7 +23,7 @@ def Tutores(request):
     acao = request.GET.get('acao')
     tutor_edicao = None
     
-    if acao == 'editar':
+    if acao == 'editar' or acao == 'del':
         tutor_id = request.GET.get('id')
         # Busca o tutor específico para edição
         query = """
@@ -54,7 +54,7 @@ def Pets(request):
     acao = request.GET.get('acao')
     pet_edicao = None
     
-    if acao == 'editar':
+    if acao == 'editar' or acao == 'del':
         id_pet = request.GET.get('id')
         # Busca o tutor específico para edição
         query = """
@@ -69,9 +69,9 @@ def Pets(request):
 def Atendimentos(request):
     acao = request.GET.get('acao')
     edicao = None
-    if acao == 'editar':
+    if acao == 'editar' or acao == 'del':
        edicao = obter_atendimento_edicao(request)
-    return render(request, 'atendimentos.html', {'pets': listar_pets(), 'veterinarios': listar_veterinarios(request), 'atendimentos': listar_atendimentos(), 'atendimento_edicao': edicao })
+    return render(request, 'atendimentos.html', {'pets': listar_pets(), 'veterinarios': listar_veterinarios(request), 'atendimentos': listar_atendimentos(), 'atendimento_edicao': edicao,  'servicos': listar_servicos })
 
 def Servico(request):
     acao = request.GET.get('acao')

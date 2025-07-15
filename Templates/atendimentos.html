@@ -212,13 +212,11 @@
                     <div class="row mb-3">
                         <div class="col-md-3">
                             <label for="tipo" class="form-label">Tipo *</label>
-                            <select class="form-select" name="tipo" id="tipo" required>
+                            <select class="form-select" name="servico" id="servico" required>
                                 <option value="">Selecione</option>
-                                <option value="CONSULTA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'CONSULTA' %}selected{% endif %}>Consulta</option>
-                                <option value="EMERGENCIA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'EMERGENCIA' %}selected{% endif %}>Emergência</option>
-                                <option value="RETORNO" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'RETORNO' %}selected{% endif %}>Retorno</option>
-                                <option value="VACINACAO" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'VACINACAO' %}selected{% endif %}>Vacinação</option>
-                                <option value="CIRURGIA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'CIRURGIA' %}selected{% endif %}>Cirurgia</option>
+                                {% for servico in servicos %}
+                                <option value="{{servico.0}}" {% if request.GET.acao == 'editar' and atendimento_edicao.8 == servico.0 %}selected{% endif %}>R${{servico.3}} - {{servico.1}}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -260,6 +258,15 @@
                                 {% endfor %}
                             </select>
                         </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="nivel" class="form-label">Nivel de prioridade</label>
+                        <select class="form-select" name="nivel" id="nivel" required>
+                            <option value="EMERGENCIA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'EMERGENCIA' %}selected{% endif %}>Emergência</option>
+                            <option value="URGENCIA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'URGENCIA' %}selected{% endif %}>Urgência</option>
+                            <option value="POUCO" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'POUCO' %}selected{% endif %}>Pouco Urgência</option>
+                            <option value="NADA" {% if request.GET.acao == 'editar' and atendimento_edicao.4 == 'NADA' %}selected{% endif %}>Nada Urgência</option>
+                        </select>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">

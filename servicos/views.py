@@ -48,3 +48,19 @@ def listar_servicos():
 
     servicos = execute_sql(query, [], False)
     return servicos
+
+def delete_servico(request):
+    id_a = request.POST.get('id')
+    query = """
+    DELETE FROM servico WHERE id_servico = %s
+    """
+    try: 
+        if delete(query, id_a):
+            messages.success(request, "Deletado com sucesso!")
+        else: 
+            messages.error(request, "O Serviço está sendo usado!") 
+    except Exception as e:
+        messages.error(request, "O Serviço está sendo usado") 
+        print(f"erro : {e}")
+    
+    return redirect("pets")

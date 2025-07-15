@@ -16,3 +16,12 @@ def update(query, params):
     except DatabaseError as e:
         print(f"Erro no UPDATE: {e}")
         return False
+
+def delete(query, params=None):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(query, params or [])
+            return True
+    except DatabaseError as e:
+        print(f"Erro no DELETE: {e}")
+        return False

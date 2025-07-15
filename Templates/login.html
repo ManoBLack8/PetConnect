@@ -82,7 +82,7 @@
                         {% csrf_token %}
                         {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }}">
+                                <div class="alert alert-danger">
                                     {{ message }}
                                 </div>
                             {% endfor %}
@@ -95,7 +95,7 @@
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">Entrar</button>
                         <div class="text-center mb-3">
-                            <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                            <!-- <a href="#" class="forgot-password">Esqueceu a senha?</a> -->
                         </div>
                     </form>
                 </div>

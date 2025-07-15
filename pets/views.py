@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from db_utils import execute_sql
+from db_utils import execute_sql, delete
 from django.contrib import messages
 
 def formulario_pets(request): 
@@ -63,3 +63,19 @@ def listar_pets():
     
     pets_paginados = execute_sql(query, [], False)
     return pets_paginados
+
+def delete_pet(request):
+    id_a = request.POST.get('id')
+    query = """
+    DELETE FROM pets WHERE id_pets = %s
+    """
+    try: 
+        if delete(query, id_a):
+            messages.success(request, "Deletado com sucesso!")
+        else: 
+            messages.error(request, "O Pet está sendo usado!") 
+    except Exception as e:
+        messages.error(request, "O Pet está sendo usado") 
+        print(f"erro : {e}")
+    
+    return redirect("pets")

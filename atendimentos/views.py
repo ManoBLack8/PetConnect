@@ -14,6 +14,8 @@ def formulario_atendimento(request):
         data_inicio = request.POST.get('data_inicio')
         data_fim = request.POST.get('data_fim')
         pet_id = request.POST.get('pet')
+        nivel = request.POST.get('nivel')
+        id_servico = request.POST.get('servico')
         veterinario_id = request.POST.get('veterinario')
         observacoes = request.POST.get('observacoes', '')
         concluir = request.POST.get('concluir') == '1'
@@ -26,13 +28,13 @@ def formulario_atendimento(request):
             query = """
             UPDATE atendimento SET
                 tipo = %s, status = %s, dt_inicio_atendimento = %s, dt_fim_atendimento = %s,
-                id_pets = %s, id_veterinario = %s, observacao = %s
+                id_pets = %s, id_veterinario = %s, observacao = %s, id_servico= %s
             WHERE id_atendimento = %s
             RETURNING  id_atendimento
             """
             params = [
-                tipo, status, data_inicio, data_fim,
-                int(pet_id), int(veterinario_id), observacoes, id_atendimento
+                nivel, status, data_inicio, data_fim,
+                int(pet_id), int(veterinario_id), observacoes,id_servico, id_atendimento
             ]
             update(query, params)
             message = 'Atendimento atualizado com sucesso!'
@@ -42,12 +44,12 @@ def formulario_atendimento(request):
             INSERT INTO atendimento (
                 tipo, status, dt_inicio_atendimento, dt_fim_atendimento, id_pets,
                 id_veterinario, observacao, id_servico
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, null)
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING  id_atendimento
             """
             params = [
-                tipo, status, data_inicio, data_fim,
-                pet_id, veterinario_id, observacoes
+                nivel, status, data_inicio, data_fim,
+                pet_id, veterinario_id, observacoes, id_servico
             ]
             atendimento = execute_sql(query, params)
             if atendimento:
@@ -95,11 +97,13 @@ def obter_atendimento_edicao(request):
             a.status status,
             p.id_pets,
             v.id_veterinario,
-            a.observacao
+            a.observacao,
+            a.id_servico
         FROM atendimento a
         JOIN pets p ON a.id_pets = p.id_pets
         JOIN tutor t ON p.id_tutor = t.id_tutor
         JOIN veterinario v ON a.id_veterinario = v.id_veterinario
+        LEFT JOIN servico s ON a.id_servico = s.id_servico
         WHERE a.id_atendimento = %s
         """
         atendimento = execute_sql(query, [id_atendimento], fetchone=True)
@@ -148,11 +152,8 @@ def qtd_emergencia():
     SELECT 
         COUNT(*)
     FROM atendimento a
-    JOIN pets p ON a.id_pets = p.id_pets
-    JOIN tutor t ON p.id_tutor = t.id_tutor
-    JOIN veterinario v ON a.id_veterinario = v.id_veterinario
-    WHERE a.dt_inicio_atendimento = CURRENT_DATE
-    AND a.status = 'EMERGENCIA';
+    WHERE DATE(a.dt_inicio_atendimento) = CURRENT_DATE
+    AND a.tipo ILIKE 'EMERGENCIA';
     """
     atendimentos = execute_sql(query, [], True)
     return atendimentos
@@ -167,7 +168,7 @@ def faturamento():
     FROM atendimento a
     INNER JOIN servico s ON a.id_servico = s.id_servico
     WHERE DATE(a.dt_inicio_atendimento) = CURRENT_DATE
-    AND a.status = 'EMERGENCIA';
+    AND a.status = 'CONCLUIDO';
     """
     atendimentos = execute_sql(query, [], True)
     return atendimentos
